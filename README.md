@@ -1,11 +1,7 @@
-# Tax Loss Harvesting — KoinX Frontend Intern Assignment
+# Tax Loss Harvesting
 
 A responsive React + TypeScript tool that shows a user's realised capital gains before and
 after "harvesting" (selectively selling) crypto holdings, to help minimise tax liability.
-
-## Live demo
-
-> Deployed link: _add your Vercel/Netlify URL here after deploying_
 
 ## Screenshots
 
