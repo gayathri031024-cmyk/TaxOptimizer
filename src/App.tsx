@@ -1,6 +1,8 @@
 import CapitalGainsCard from "./components/CapitalGainsCard";
 import ErrorState from "./components/ErrorState";
 import HoldingsTable from "./components/HoldingsTable";
+import HowItWorksLink from "./components/HowItWorksLink";
+import ImportantNotes from "./components/ImportantNotes";
 import LoadingState from "./components/LoadingState";
 import { useTaxHarvesting } from "./hooks/useTaxHarvesting";
 
@@ -14,6 +16,7 @@ function App() {
     toggleHolding,
     toggleAll,
     allSelected,
+    selected,
     baseCapitalGains,
     postCapitalGains,
     preHarvesting,
@@ -26,32 +29,19 @@ function App() {
   if (!baseCapitalGains || !postCapitalGains) return null;
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-sm font-bold text-white">
-              K
-            </div>
-            <span className="font-semibold text-slate-800">Tax Loss Harvesting</span>
-          </div>
-          <span className="hidden text-sm text-slate-400 sm:block">FY 2024-25</span>
+    <div className="min-h-screen bg-[#050810]">
+      <main className="mx-auto flex max-w-6xl flex-col gap-5 px-4 py-6 sm:px-6 sm:py-8">
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="text-2xl font-semibold text-white">Tax Optimisation</h1>
+          <HowItWorksLink />
         </div>
-      </header>
 
-      <main className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8">
-        <div>
-          <h1 className="text-xl font-semibold text-slate-800 sm:text-2xl">Harvest your losses, reduce your tax</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Select holdings below to see how selling them today changes your capital gains for the year.
-          </p>
-        </div>
+        <ImportantNotes />
 
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
           <CapitalGainsCard
             variant="pre"
-            title="Pre-Harvesting"
-            subtitle="Your current realised capital gains"
+            title="Pre Harvesting"
             gains={preHarvesting}
             profits={{ stcg: baseCapitalGains.stcg.profits, ltcg: baseCapitalGains.ltcg.profits }}
             losses={{ stcg: baseCapitalGains.stcg.losses, ltcg: baseCapitalGains.ltcg.losses }}
@@ -59,7 +49,6 @@ function App() {
           <CapitalGainsCard
             variant="post"
             title="After Harvesting"
-            subtitle="Based on the holdings you've selected"
             gains={postHarvesting}
             profits={{ stcg: postCapitalGains.stcg.profits, ltcg: postCapitalGains.ltcg.profits }}
             losses={{ stcg: postCapitalGains.stcg.losses, ltcg: postCapitalGains.ltcg.losses }}
@@ -73,10 +62,11 @@ function App() {
           onToggle={toggleHolding}
           onToggleAll={toggleAll}
           allSelected={allSelected}
+          selectedCount={selected.size}
         />
       </main>
 
-      <footer className="py-8 text-center text-xs text-slate-400">
+      <footer className="py-8 text-center text-xs text-slate-500">
         Built for the KoinX Frontend Intern Assignment · Data shown is mocked
       </footer>
     </div>

@@ -2,16 +2,33 @@
 
 A responsive React + TypeScript tool that shows a user's realised capital gains before and
 after "harvesting" (selectively selling) crypto holdings, to help minimise tax liability.
+The visual design was reviewed against the assignment's demo video and adjusted to match its
+dark theme, card layout, and copy.
 
+Deployed link: `https://tax-loss-harvesting-gayathri.surge.sh`
+
+>>>>>>> 7396e48 (Polish UI to match reference demo: dark theme, How it works tooltip, Important Notes, sortable column)
 ## Screenshots
 
-**Desktop — initial state (nothing selected)**
+**Initial state (nothing selected)**
 
 ![Desktop initial](./screenshots/desktop-initial.png)
 
-**Desktop — after selecting a few holdings** (net gains drop, savings banner appears)
+**After selecting a few holdings** — net gains drop, the savings line appears
 
 ![Desktop selected](./screenshots/desktop-selected.png)
+
+**"How it works?" tooltip**
+
+![How it works tooltip](./screenshots/how-it-works-tooltip.png)
+
+**"Important Notes And Disclaimers" expanded**
+
+![Important notes expanded](./screenshots/important-notes-expanded.png)
+
+**Holdings sorted by Short-Term gain**
+
+![Sorted by short-term](./screenshots/sorted-by-short-term.png)
 
 **Mobile view**
 
@@ -23,9 +40,8 @@ after "harvesting" (selectively selling) crypto holdings, to help minimise tax l
 - **Tailwind CSS v4** for styling
 - Mock APIs implemented as promise-based functions with simulated network
   latency (see [`src/api/mockApi.ts`](./src/api/mockApi.ts)) — no real backend/server needed
-- No external state management library — the app is small enough that a single
-  custom hook (`useTaxHarvesting`) plus `useState`/`useMemo` is sufficient and keeps the
-  data flow easy to follow
+- No external state management library — a single custom hook (`useTaxHarvesting`) plus
+  `useState`/`useMemo` is sufficient for an app this size and keeps the data flow easy to follow
 
 ## Getting started
 
@@ -49,13 +65,15 @@ npm run preview
 ```
 src/
 ├── api/
-│   ├── mockApi.ts          # fetchHoldings() / fetchCapitalGains() — simulated network calls
+│   ├── mockApi.ts               # fetchHoldings() / fetchCapitalGains() — simulated network calls
 │   └── mockData/
 │       ├── holdings.json        # Holdings API dummy response
 │       └── capitalGains.json    # Capital Gains API dummy response
 ├── components/
 │   ├── CapitalGainsCard.tsx     # Pre/After-harvesting card (dark & blue variants)
-│   ├── HoldingsTable.tsx        # Selectable holdings table with "view all"
+│   ├── HoldingsTable.tsx        # Selectable, sortable holdings table with "View All"
+│   ├── HowItWorksLink.tsx       # "How it works?" popover
+│   ├── ImportantNotes.tsx       # Collapsible disclaimers bar
 │   ├── LoadingState.tsx         # Skeleton loader
 │   └── ErrorState.tsx           # Error + retry UI
 ├── hooks/
@@ -63,7 +81,7 @@ src/
 ├── types/
 │   └── index.ts                 # Shared TypeScript types
 ├── utils/
-│   ├── format.ts                # Currency / quantity formatting helpers
+│   ├── format.ts                 # Currency / quantity formatting helpers
 │   └── gains.ts                  # Pure functions for the tax-harvesting math
 ├── App.tsx
 └── main.tsx
@@ -79,13 +97,13 @@ Net Long Term Gain    = ltcg.profits - ltcg.losses
 Realised Capital Gain = Net Short Term Gain + Net Long Term Gain
 ```
 
-- The **Pre-Harvesting** card always reflects the raw Capital Gains API response.
-- The **After Harvesting** card starts as a mirror of Pre-Harvesting. As holdings are
+- The **Pre Harvesting** card always reflects the raw Capital Gains API response.
+- The **After Harvesting** card starts as a mirror of Pre Harvesting. As holdings are
   checked/unchecked in the table, each selected holding's `stcg.gain` and `ltcg.gain` are
   folded into the base profits/losses (positive gain → added to profits, negative gain →
-  its magnitude added to losses), and the net/realised figures are recomputed —
+  its magnitude added to losses), and the net/effective figures are recomputed —
   all client-side, in real time (`applySelections` / `deriveGains` in `utils/gains.ts`).
-- The **"You're going to save ₹X"** banner is shown only when
+- The savings line ("Your taxable capital gains are reduced by: ₹X") is shown only when
   `preHarvesting.realised > postHarvesting.realised`, and `X` is that difference.
 
 This logic is unit-testable in isolation since it's implemented as pure functions
@@ -102,25 +120,28 @@ decoupled from React (see `utils/gains.ts`).
   keyed by `coin + coinName` instead, so both render and behave as independent,
   selectable rows.
 - **"Amount to Sell"** is populated with the holding's `totalHolding` the moment it's
-  selected (per the spec) — this is a read-only preview of what selling the full position
-  would sell, not an editable/partial-sell input, since the assignment doesn't call for
+  selected (per the spec) — a read-only preview of what selling the full position
+  would sell, not an editable/partial-sell input, since the brief doesn't call for
   partial selling.
 - Selecting a holding always applies **both** its `stcg.gain` and `ltcg.gain` to the
   respective buckets (per the worked example in the brief), even when one bucket's
   `balance` is `0` — a `0`/`0` bucket simply contributes `0` and has no visible effect.
+- The demo video sorts the **Short-Term** column on click (ascending/descending); the same
+  toggle is implemented here, cycling through descending → ascending → unsorted.
 - Extremely small "dust" balances (e.g. `1e-14`) in the sample data are formatted with
   scientific notation rather than rounded to `0`, so every row stays meaningfully
   distinguishable.
-- Rows are sorted by the order returned from the Holdings API (i.e. left as-is), since the
-  brief only asks for "any logical order" and doesn't specify a sort key.
-- Currency is formatted in INR (₹) using Indian digit grouping, matching the
-  Rupee figures in the sample API responses.
+- Currency is formatted in INR (₹), matching the Rupee-scale figures in the sample
+  API responses (the demo video itself uses a different, USD-denominated mock dataset
+  purely for illustration).
 
 ## Bonus features implemented
 
 - ✅ Mobile responsive (cards stack, table scrolls horizontally on small screens)
 - ✅ Reusable, composable components (`CapitalGainsCard`, `HoldingsTable`, etc.)
 - ✅ State managed via a single custom hook (`useTaxHarvesting`) — no prop drilling
-- ✅ Visual feedback on selection (row highlight, live-updating card, savings banner)
+- ✅ Visual feedback on selection (row highlight, live-updating card, savings line, indeterminate
+  select-all checkbox)
 - ✅ Loading skeleton and error state (with retry) for the mock API calls
-- ✅ "View all" / "Show less" toggle in the holdings table (collapsed to 8 rows by default)
+- ✅ "View All" / "Show less" toggle in the holdings table (collapsed to 8 rows by default)
+- ✅ Sortable Short-Term gain column, matching the interaction shown in the reference demo

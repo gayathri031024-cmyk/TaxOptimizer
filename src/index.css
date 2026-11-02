@@ -6,7 +6,7 @@
 
 html,
 body {
-  background-color: #f4f6fb;
+  background-color: #050810;
 }
 
 * {
@@ -19,6 +19,6 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #334155;
   border-radius: 4px;
 }
